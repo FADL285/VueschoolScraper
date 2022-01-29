@@ -1,0 +1,5 @@
+.ipynb_checkpoints
+venv
+*.ipynb
+download_urls.txt
+.env
