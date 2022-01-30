@@ -1,6 +1,6 @@
 .ipynb_checkpoints
 venv
 *.ipynb
-download_urls.txt
+lessons_titles.txt
 .env
 .idea
