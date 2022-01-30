@@ -139,7 +139,7 @@ def main():
 
         lesson_index += 1
 
-    print("Done! check in browser.")
+    print("Done! check Downloads in browser driver.")
 
     input('Enter key to close:) -> ')
 
