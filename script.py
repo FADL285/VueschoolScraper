@@ -129,7 +129,7 @@ def main():
     # Get a download url for each lesson
     print("Starting download lessons...., please wait.")
 
-    lesson_index = 1
+    lesson_index = download_range['from']
     for lesson in lessons:
         print(f"Downloading lesson No. {lesson_index}...")
         download_lesson(driver, lesson, lesson_index, course_title)
