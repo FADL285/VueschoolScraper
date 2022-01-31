@@ -70,7 +70,7 @@ def download_lesson(driver, lesson_url, lesson_index, course_title):
         repo_elem = driver.find_element(By.CSS_SELECTOR, 'aside .locked-feature a[title^="Download the source code"]')
         repo_elem_url = str(repo_elem.get_attribute("href"))
 
-    print(repo_elem_url)
+    sleep(0.5)
 
     # Download lesson
     download_elem = driver.find_element(By.LINK_TEXT, "HD")
@@ -95,7 +95,7 @@ def download_subtitle(driver, lesson_name, lesson_index, course_title):
 
     download_path = config("DOWNLOAD_PATH")
     file = requests.get(subtitle_link)
-    file_name = f"Vue School - {course_title} - {lesson_index} {lesson_name} - HD.vtt".replace('?', '')
+    file_name = f"Vue School - {course_title} - {lesson_index} {lesson_name} - HD.vtt".replace('?', '_').replace('/', '_')
 
     with open(f'{download_path}/{file_name}', 'wb') as f:
         f.write(file.content)
