@@ -23,7 +23,7 @@ def check_exists_by_css_selector(driver, css_selector):
 def save(filename, repos_urls):
     download_path = config("DOWNLOAD_PATH")
     with open(f"{download_path}/{filename}", "w") as f:
-        f.write("\n".join(repos_urls))
+        f.write("\n\n".join(repos_urls))
 
 
 def handle_params(lessons_numbers):
@@ -60,20 +60,24 @@ def do_in_new_window(func):
 @do_in_new_window
 def download_lesson(driver, lesson_url, lesson_index, course_title):
     driver.get(lesson_url)
-    # Download lesson
-    download_elem = driver.find_element(By.LINK_TEXT, "HD")
-    download_elem.click()
 
     # Get Lesson Title
     lesson_title = driver.find_element(By.CSS_SELECTOR, '#app h1[title]').text
-    # Download Subtitle
-    download_subtitle(driver, lesson_title, lesson_index, course_title)
 
     # Get Source Code Link
     repo_elem_url = "Not Found"
     if check_exists_by_css_selector(driver, 'aside .locked-feature a[title^="Download the source code"]'):
         repo_elem = driver.find_element(By.CSS_SELECTOR, 'aside .locked-feature a[title^="Download the source code"]')
         repo_elem_url = str(repo_elem.get_attribute("href"))
+
+    print(repo_elem_url)
+
+    # Download lesson
+    download_elem = driver.find_element(By.LINK_TEXT, "HD")
+    download_elem.click()
+
+    # Download Subtitle
+    download_subtitle(driver, lesson_title, lesson_index, course_title)
 
     return repo_elem_url
 
@@ -170,7 +174,6 @@ def main():
 
     save('repo.txt', source_code_urls)
     print("Done! check Downloads in browser driver.")
-
     input('Enter key to close:) -> ')
 
 
