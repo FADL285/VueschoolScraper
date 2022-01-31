@@ -5,10 +5,25 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
 from functools import wraps
 from decouple import config
 from time import sleep
+
+
+def check_exists_by_css_selector(driver, css_selector):
+    try:
+        driver.find_element(By.CSS_SELECTOR, css_selector)
+    except NoSuchElementException:
+        return False
+    return True
+
+
+def save(filename, repos_urls):
+    download_path = config("DOWNLOAD_PATH")
+    with open(f"{download_path}/{filename}", "w") as f:
+        f.write("\n".join(repos_urls))
 
 
 def handle_params(lessons_numbers):
@@ -54,6 +69,14 @@ def download_lesson(driver, lesson_url, lesson_index, course_title):
     # Download Subtitle
     download_subtitle(driver, lesson_title, lesson_index, course_title)
 
+    # Get Source Code Link
+    repo_elem_url = "Not Found"
+    if check_exists_by_css_selector(driver, 'aside .locked-feature a[title^="Download the source code"]'):
+        repo_elem = driver.find_element(By.CSS_SELECTOR, 'aside .locked-feature a[title^="Download the source code"]')
+        repo_elem_url = str(repo_elem.get_attribute("href"))
+
+    return repo_elem_url
+
 
 def download_subtitle(driver, lesson_name, lesson_index, course_title):
     iframe_elem = driver.find_element(By.CSS_SELECTOR, ".video-player-wrapper iframe")
@@ -64,7 +87,7 @@ def download_subtitle(driver, lesson_name, lesson_index, course_title):
 
     download_path = config("DOWNLOAD_PATH")
     file = requests.get(subtitle_link)
-    file_name = f"Vue School - {course_title} - {lesson_index} {lesson_name} - HD.vtt"
+    file_name = f"Vue School - {course_title} - {lesson_index} {lesson_name} - HD.vtt".replace('?', '')
 
     with open(f'{download_path}/{file_name}', 'wb') as f:
         f.write(file.content)
@@ -121,7 +144,7 @@ def main():
 
     course_info = get_course_info(driver, course)
     lessons = course_info["lessons"]
-    course_title = course_info["title"]
+    course_title = course_info["title"].replace('?', '')
 
     download_range = handle_params(len(lessons))
     lessons = lessons[(download_range['from'] - 1):download_range['to']]
@@ -129,16 +152,19 @@ def main():
     # Get a download url for each lesson
     print("Starting download lessons...., please wait.")
 
+    source_code_urls = []
     lesson_index = download_range['from']
     for lesson in lessons:
         print(f"Downloading lesson No. {lesson_index}...")
-        download_lesson(driver, lesson, lesson_index, course_title)
+        repo_url = download_lesson(driver, lesson, lesson_index, course_title)
+        source_code_urls.append(repo_url)
 
         if lesson_index % 3 == 0:
             sleep(30)
 
         lesson_index += 1
 
+    save('repo.txt', source_code_urls)
     print("Done! check Downloads in browser driver.")
 
     input('Enter key to close:) -> ')
