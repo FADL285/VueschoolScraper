@@ -81,6 +81,10 @@ def download_lesson(driver, lesson_url, lesson_index, course_title):
 def download_subtitle(driver, lesson_name, lesson_index, course_title):
     iframe_elem = driver.find_element(By.CSS_SELECTOR, ".video-player-wrapper iframe")
     driver.switch_to.frame(iframe_elem)
+
+    if not check_exists_by_css_selector(driver, '.vp-video-wrapper video track[srclang="en-US"]'):
+        return
+
     subtitle_elem = driver.find_element(By.CSS_SELECTOR, '.vp-video-wrapper video track[srclang="en-US"]')
 
     subtitle_link = str(subtitle_elem.get_attribute("src"))
