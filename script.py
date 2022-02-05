@@ -64,20 +64,18 @@ def download_lesson(driver, lesson_url, lesson_index, course_title):
     # Get Lesson Title
     lesson_title = driver.find_element(By.CSS_SELECTOR, '#app h1[title]').text
 
-    # Get Source Code Link
-    repo_elem_url = "Not Found"
-    if check_exists_by_css_selector(driver, 'aside .locked-feature a[title^="Download the source code"]'):
-        repo_elem = driver.find_element(By.CSS_SELECTOR, 'aside .locked-feature a[title^="Download the source code"]')
-        repo_elem_url = str(repo_elem.get_attribute("href"))
-
-    sleep(0.5)
-
     # Download lesson
     download_elem = driver.find_element(By.LINK_TEXT, "HD")
     download_elem.click()
 
     # Download Subtitle
     download_subtitle(driver, lesson_title, lesson_index, course_title)
+
+    # Get Source Code Link
+    repo_elem_url = "Not Found"
+    if check_exists_by_css_selector(driver, 'aside .locked-feature a[title^="Download the source code"]'):
+        repo_elem = driver.find_element(By.CSS_SELECTOR, 'aside .locked-feature a[title^="Download the source code"]')
+        repo_elem_url = str(repo_elem.get_attribute("href"))
 
     return repo_elem_url
 
@@ -95,7 +93,7 @@ def download_subtitle(driver, lesson_name, lesson_index, course_title):
 
     download_path = config("DOWNLOAD_PATH")
     file = requests.get(subtitle_link)
-    file_name = f"Vue School - {course_title} - {lesson_index} {lesson_name} - HD.vtt".replace('?', '_').replace('/', '_')
+    file_name = f"Vue School - {course_title} - {lesson_index} {lesson_name} - HD.vtt".replace('?', '_').replace('/', '_').replace('*', '_')
 
     with open(f'{download_path}/{file_name}', 'wb') as f:
         f.write(file.content)
@@ -152,7 +150,7 @@ def main():
 
     course_info = get_course_info(driver, course)
     lessons = course_info["lessons"]
-    course_title = course_info["title"].replace('?', '')
+    course_title = course_info["title"].replace('?', '').replace(':', '')
 
     download_range = handle_params(len(lessons))
     lessons = lessons[(download_range['from'] - 1):download_range['to']]
@@ -167,8 +165,8 @@ def main():
         repo_url = download_lesson(driver, lesson, lesson_index, course_title)
         source_code_urls.append(repo_url)
 
-        if lesson_index % 3 == 0:
-            sleep(30)
+        if lesson_index % 2 == 0:
+            sleep(8)
 
         lesson_index += 1
 
