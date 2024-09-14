@@ -68,8 +68,9 @@ def download_lesson(driver, lesson_url, lesson_index, course_title):
     download_elem = driver.find_element(By.LINK_TEXT, "HD")
     download_elem.click()
 
-    # Download Subtitle
-    download_subtitle(driver, lesson_title, lesson_index, course_title)
+    # Try downloading the transcript first, fall back to subtitles if not found
+    if not download_transcript(driver, lesson_title, lesson_index, course_title):
+        download_subtitle(driver, lesson_title, lesson_index, course_title)
 
     # Get Source Code Link
     repo_elem_url = "Not Found"
@@ -78,6 +79,30 @@ def download_lesson(driver, lesson_url, lesson_index, course_title):
         repo_elem_url = str(repo_elem.get_attribute("href"))
 
     return repo_elem_url
+
+
+def download_transcript(driver, lesson_title, lesson_index, course_title):
+    """
+    Checks for the 'Download Transcript' button and clicks on it.
+    If the button is not found, it falls back to download_subtitle.
+    """
+    # Check if the "Download Transcript" button exists
+    transcript_button_css = 'a[title^="Download the transcript"]'
+    if check_exists_by_css_selector(driver, transcript_button_css):
+        transcript_elem = driver.find_element(By.CSS_SELECTOR, transcript_button_css)
+        transcript_url = transcript_elem.get_attribute("href")
+        
+        # Download the transcript
+        download_path = config("DOWNLOAD_PATH")
+        file = requests.get(transcript_url)
+        file_name = f"Vue School - {course_title} - {lesson_index} {lesson_title} - Transcript.vtt".replace('?', '_').replace('/', '_').replace('*', '_')
+
+        with open(f'{download_path}/{file_name}', 'wb') as f:
+            f.write(file.content)
+        print(f"Downloaded Transcript for {lesson_title}.")
+        return True  # Transcript successfully downloaded
+    else:
+        return False  # Transcript button not found
 
 
 def download_subtitle(driver, lesson_name, lesson_index, course_title):
