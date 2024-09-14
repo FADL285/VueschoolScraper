@@ -10,6 +10,7 @@ from selenium.common.exceptions import NoSuchElementException
 from functools import wraps
 from decouple import config
 from time import sleep
+from html2text import html2text
 
 
 def check_exists_by_css_selector(driver, css_selector):
@@ -69,7 +70,7 @@ def download_lesson(driver, lesson_url, lesson_index, course_title):
     download_elem.click()
 
     # Try downloading the transcript first, fall back to subtitles if not found
-    if not download_transcript(driver, lesson_title, lesson_index, course_title):
+    if not download_transcript(driver, lesson_title):
         download_subtitle(driver, lesson_title, lesson_index, course_title)
 
     # Get Source Code Link using the new function
@@ -142,24 +143,26 @@ def get_source_code_link(driver):
 
 def download_description(driver, lesson_title, lesson_index, course_title):
     """
-    Checks for the 'data-link-blank' div, extracts its content, and saves it to a text file.
+    Checks for the 'data-link-blank' div, extracts its readable content (converted to Markdown),
+    and saves it to a .md file.
     """
     # Check if the description div exists
     description_css = 'div[data-link-blank]'
     if check_exists_by_css_selector(driver, description_css):
         description_elem = driver.find_element(By.CSS_SELECTOR, description_css)
-        description_content = description_elem.get_attribute("innerHTML")  # Get the inner HTML content
+        description_html = description_elem.get_attribute("innerHTML")  # Get the inner HTML content
         
-        # Clean and format content (optional step to clean HTML tags, etc.)
-        # You can use libraries like BeautifulSoup if needed, but for now we'll keep it simple
+        # Convert HTML to Markdown using html2text
+        markdown_text = html2text(description_html)
         
-        # Save the description content to a text file
+        # Save the description content as a Markdown (.md) file
         download_path = config("DOWNLOAD_PATH")
-        file_name = f"Vue School - {course_title} - {lesson_index} {lesson_title} - Description.txt".replace('?', '_').replace('/', '_').replace('*', '_')
+        file_name = f"Vue School - {course_title} - {lesson_index} {lesson_title} - Description.md".replace('?', '_').replace('/', '_').replace('*', '_')
         
         with open(f'{download_path}/{file_name}', 'w', encoding='utf-8') as f:
-            f.write(description_content)
-        print(f"Downloaded description for {lesson_title}.")
+            f.write(markdown_text)
+        
+        print(f"Downloaded description as Markdown for {lesson_title}.")
     else:
         print(f"No description found for {lesson_title}.")
 
