@@ -212,6 +212,7 @@ def main():
     # Get lessons
     print("Getting the lessons...")
     course = config("COURSE_URL")
+    print(f"Course URL from env: {course}")
 
     course_info = get_course_info(driver, course)
     lessons = course_info["lessons"]
