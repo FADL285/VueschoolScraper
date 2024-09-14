@@ -33,13 +33,12 @@ def handle_params(lessons_numbers):
     print(f"Done! Found {lessons_numbers} lessons.")
     decision = input("Do you want to select a range of lessons? [y, n] --> ")
 
-    if decision.lower() == 'y' or decision.lower() == 'yes':
+    if decision.lower() in ['y', 'yes']:
         range_from = input(f"Download <From> lesson No.?  [1-{lessons_numbers}], 1 is the default  --> ")
         params['from'] = int(range_from) if range_from.isnumeric() and 0 < int(range_from) <= lessons_numbers else 1
 
         range_to = input(f"Download <To> lesson No.?  [1-{lessons_numbers}], {lessons_numbers} is the default  --> ")
-        params['to'] = int(range_to) if range_to.isnumeric() and 0 < int(
-            range_to) <= lessons_numbers else lessons_numbers
+        params['to'] = int(range_to) if range_to.isnumeric() and 0 < int(range_to) <= lessons_numbers else lessons_numbers
 
     return params
 
@@ -200,10 +199,8 @@ def main():
 
     service = Service(driver_path)
     chrome_options = webdriver.ChromeOptions()
-    # Change Download Path
     prefs = {"download.default_directory": download_path}
     chrome_options.add_experimental_option("prefs", prefs)
-    # chrome_options.add_argument("--headless")  # Headless
     driver = webdriver.Chrome(service=service, options=chrome_options)
     print("Done!")
 
@@ -215,16 +212,16 @@ def main():
     # Get lessons
     print("Getting the lessons...")
     course = config("COURSE_URL")
-    print(f"Course URL from env: {course}")
 
     course_info = get_course_info(driver, course)
     lessons = course_info["lessons"]
     course_title = course_info["title"].replace('?', '').replace(':', '')
 
+    # Get lesson range from handle_params
     download_range = handle_params(len(lessons))
     lessons = lessons[(download_range['from'] - 1):download_range['to']]
 
-    # Get a download url for each lesson
+    # Get a download URL for each lesson
     print("Starting download lessons...., please wait.")
 
     source_code_urls = []
@@ -239,7 +236,8 @@ def main():
 
         lesson_index += 1
 
-    save('repo.txt', source_code_urls)
+    # Pass the range to save function using download_range
+    save('repo', source_code_urls, download_range['from'], download_range['to'])
     print("Done! check Downloads in browser driver.")
     input('Enter key to close:) -> ')
 
