@@ -73,10 +73,7 @@ def download_lesson(driver, lesson_url, lesson_index, course_title):
         download_subtitle(driver, lesson_title, lesson_index, course_title)
 
     # Get Source Code Link
-    repo_elem_url = "Not Found"
-    if check_exists_by_css_selector(driver, 'aside .locked-feature a[title^="Download the source code"]'):
-        repo_elem = driver.find_element(By.CSS_SELECTOR, 'aside .locked-feature a[title^="Download the source code"]')
-        repo_elem_url = str(repo_elem.get_attribute("href"))
+    repo_elem_url = get_source_code_link(driver)
 
     return repo_elem_url
 
@@ -122,6 +119,22 @@ def download_subtitle(driver, lesson_name, lesson_index, course_title):
 
     with open(f'{download_path}/{file_name}', 'wb') as f:
         f.write(file.content)
+
+
+def get_source_code_link(driver):
+    """
+    Tries to find the 'Download Source Code' button and returns the link to the source code.
+    Returns "Not Found" if the button is not present.
+    """
+    source_code_css = 'a[title^="Download the source code"]'
+    
+    # Check if the "Download Source Code" button exists
+    if check_exists_by_css_selector(driver, source_code_css):
+        source_code_elem = driver.find_element(By.CSS_SELECTOR, source_code_css)
+        source_code_url = source_code_elem.get_attribute("href")
+        return source_code_url
+    else:
+        return "Not Found"
 
 
 def get_course_info(driver, course):
