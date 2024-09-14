@@ -95,7 +95,7 @@ def download_transcript(driver, lesson_title, lesson_index, course_title):
         # Download the transcript
         download_path = config("DOWNLOAD_PATH")
         file = requests.get(transcript_url)
-        file_name = f"Vue School - {course_title} - {lesson_index} {lesson_title} - Transcript.vtt".replace('?', '_').replace('/', '_').replace('*', '_')
+        file_name = f"Vue School - {course_title} - {lesson_index} {lesson_title} - HD.vtt".replace('?', '_').replace('/', '_').replace('*', '_')
 
         with open(f'{download_path}/{file_name}', 'wb') as f:
             f.write(file.content)
