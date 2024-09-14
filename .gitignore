@@ -4,3 +4,4 @@ venv
 lessons_titles.txt
 .env
 .idea
+__pycache__
