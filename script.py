@@ -72,8 +72,11 @@ def download_lesson(driver, lesson_url, lesson_index, course_title):
     if not download_transcript(driver, lesson_title, lesson_index, course_title):
         download_subtitle(driver, lesson_title, lesson_index, course_title)
 
-    # Get Source Code Link
+    # Get Source Code Link using the new function
     repo_elem_url = get_source_code_link(driver)
+
+    # Download the lesson description if available
+    download_description(driver, lesson_title, lesson_index, course_title)
 
     return repo_elem_url
 
@@ -135,6 +138,30 @@ def get_source_code_link(driver):
         return source_code_url
     else:
         return "Not Found"
+
+
+def download_description(driver, lesson_title, lesson_index, course_title):
+    """
+    Checks for the 'data-link-blank' div, extracts its content, and saves it to a text file.
+    """
+    # Check if the description div exists
+    description_css = 'div[data-link-blank]'
+    if check_exists_by_css_selector(driver, description_css):
+        description_elem = driver.find_element(By.CSS_SELECTOR, description_css)
+        description_content = description_elem.get_attribute("innerHTML")  # Get the inner HTML content
+        
+        # Clean and format content (optional step to clean HTML tags, etc.)
+        # You can use libraries like BeautifulSoup if needed, but for now we'll keep it simple
+        
+        # Save the description content to a text file
+        download_path = config("DOWNLOAD_PATH")
+        file_name = f"Vue School - {course_title} - {lesson_index} {lesson_title} - Description.txt".replace('?', '_').replace('/', '_').replace('*', '_')
+        
+        with open(f'{download_path}/{file_name}', 'w', encoding='utf-8') as f:
+            f.write(description_content)
+        print(f"Downloaded description for {lesson_title}.")
+    else:
+        print(f"No description found for {lesson_title}.")
 
 
 def get_course_info(driver, course):
