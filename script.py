@@ -190,6 +190,19 @@ def login(driver):
     sleep(4)
 
 
+def choose_content():
+    print("Which content do you want to download?")
+    print("1. Lessons only")
+    print("2. Lessons and Transcripts")
+    print("3. Repos only")
+    print("4. Description only")
+    print("5. All content")
+
+    choice = input("Enter the number corresponding to your choice (1-5): ")
+
+    return choice
+
+
 def main():
     # Init
     print("Initiating a driver...")
@@ -221,24 +234,42 @@ def main():
     download_range = handle_params(len(lessons))
     lessons = lessons[(download_range['from'] - 1):download_range['to']]
 
-    # Get a download URL for each lesson
-    print("Starting download lessons...., please wait.")
+    # Ask the user which content to download
+    choice = choose_content()
 
+    # Initialize an empty list for repo URLs
     source_code_urls = []
+    
+    # Start downloading based on the user's choice
     lesson_index = download_range['from']
     for lesson in lessons:
         print(f"Downloading lesson No. {lesson_index}...")
-        repo_url = download_lesson(driver, lesson, lesson_index, course_title)
-        source_code_urls.append(repo_url)
+
+        if choice in ['1', '2', '5']:  # If Lessons, Lessons and Transcripts, or All
+            repo_url = download_lesson(driver, lesson, lesson_index, course_title)
+            source_code_urls.append(repo_url)
+
+            if choice == '2' or choice == '5':  # If Transcripts or All
+                if not download_transcript(driver, lesson):
+                    download_subtitle(driver, lesson, lesson_index, course_title)
+
+        if choice == '3' or choice == '5':  # If Repos or All
+            repo_url = get_source_code_link(driver)
+            source_code_urls.append(repo_url)
+
+        if choice == '4' or choice == '5':  # If Description or All
+            download_description(driver, lesson, lesson_index, course_title)
 
         if lesson_index % 2 == 0:
             sleep(8)
 
         lesson_index += 1
 
-    # Pass the range to save function using download_range
-    save('repo', source_code_urls, download_range['from'], download_range['to'])
-    print("Done! check Downloads in browser driver.")
+    # Save repos if repos are selected (or all content)
+    if choice == '3' or choice == '5':
+        save('repo', source_code_urls, download_range['from'], download_range['to'])
+
+    print("Done! Check Downloads in browser driver.")
     input('Enter key to close:) -> ')
 
 
