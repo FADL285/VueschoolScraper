@@ -2,18 +2,34 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 from decouple import config
 
 def login(driver):
     driver.get("https://vueschool.io/login/")
     
+    
     # Find and enter the email
-    email_elem = driver.find_element(By.XPATH, '//input[@placeholder="elon@musk.io"]')
+    try:
+        email_elem = driver.find_element(By.XPATH, '//input[@placeholder="guybrush@threepwood.com"]')
+    except NoSuchElementException:
+        try:
+            email_elem = driver.find_element(By.XPATH, '//input[@tabindex="1"]')
+        except NoSuchElementException:
+            raise Exception("Email input not found")
+    
     email = config("EMAIL")
     email_elem.send_keys(email)
-
+    
     # Find and enter the password
-    password_elem = driver.find_element(By.XPATH, '//input[@placeholder="Your super secret password"]')
+    try:
+        password_elem = driver.find_element(By.XPATH, '//input[@placeholder="Your super secret password"]')
+    except NoSuchElementException:
+        try:
+            password_elem = driver.find_element(By.XPATH, '//input[@tabindex="2"]')
+        except NoSuchElementException:
+            raise Exception("Password input not found")
+    
     password = config("PASSWORD")
     password_elem.send_keys(password)
     password_elem.send_keys(Keys.RETURN)
