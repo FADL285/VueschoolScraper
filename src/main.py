@@ -49,7 +49,7 @@ def main():
         choice = choose_content()
 
         source_code_urls = []
-        wait_time = int(config("WAIT_TIME", default=8))
+        wait_time = int(config("WAIT_TIME", default=25))
 
         lesson_index = download_range["from"]
         for lesson_url in lessons:
@@ -65,6 +65,8 @@ def main():
 
             if lesson_index % 2 == 0:
                 sleep(wait_time)
+            else:
+                sleep(wait_time / 2)
 
             lesson_index += 1
 
