@@ -18,21 +18,21 @@ def download_lesson_content(driver, lesson_url, lesson_index, course_title, choi
 
     repo_elem_url = "Not Applicable"
 
-    if choice in ["1", "2", "5"]:
+    if choice in ["1", "3", "6"]:
         print(f"Downloading lesson video for {lesson_title}...")
         download_lesson(driver)
 
-        if choice == "2" or choice == "5":
-            print(f"Downloading transcript for {lesson_title}...")
-            if not download_transcript(driver, lesson_title, lesson_index, course_title):
-                print(f"Transcript not found, downloading subtitles for {lesson_title}...")
-                download_subtitle(driver, lesson_title, lesson_index, course_title)
+    if choice in ["2", "3", "6"]:
+        print(f"Downloading transcript for {lesson_title}...")
+        if not download_transcript(driver, lesson_title, lesson_index, course_title):
+            print(f"Transcript not found, downloading subtitles for {lesson_title}...")
+            download_subtitle(driver, lesson_title, lesson_index, course_title)
 
-    if choice == "3" or choice == "5":
+    if choice in ["4", "6"]:
         print(f"Downloading source code for {lesson_title}...")
         repo_elem_url = get_source_code_link(driver)
 
-    if choice == "4" or choice == "5":
+    if choice in ["5", "6"]:
         print(f"Downloading description for {lesson_title}...")
         download_description(driver, lesson_title, lesson_index, course_title)
 

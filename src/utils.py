@@ -39,17 +39,19 @@ def choose_content():
     while True:
         print("Which content do you want to download?")
         print("1. Lessons only")
-        print("2. Lessons and Transcripts")
-        print("3. Repos only")
-        print("4. Description only")
-        print("5. All content")
+        print("2. Transcripts only")
+        print("3. Lessons and Transcripts")
+        print("4. Repos only")
+        print("5. Description only")
+        print("6. All content")
+        print("7. Exit")
 
-        choice = input("Enter the number corresponding to your choice (1-5): ")
+        choice = input("Enter the number corresponding to your choice (1-7): ")
 
-        if choice in ["1", "2", "3", "4", "5"]:
+        if choice in ["1", "2", "3", "4", "5", "6", "7"]:
             return choice
         else:
-            print("Invalid choice. Please enter a number between 1 and 5.")
+            print("Invalid choice. Please enter a number between 1 and 7.")
 
 def get_course_info(driver, course):
     course_info = {}

@@ -48,6 +48,10 @@ def main():
         # Ask the user which content to download
         choice = choose_content()
 
+        if choice == "7":
+            print("Exiting the program.")
+            return
+
         source_code_urls = []
         wait_time = int(config("WAIT_TIME", default=25))
 
