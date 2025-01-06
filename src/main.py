@@ -1,6 +1,6 @@
+from time import sleep
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from time import sleep
 from decouple import config
 
 # Import your custom modules

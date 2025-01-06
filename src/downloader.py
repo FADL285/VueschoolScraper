@@ -1,7 +1,9 @@
+import requests
+import os
+from time import sleep
 from src.utils import check_exists_by_css_selector
 from src.browser import do_in_new_window
 from selenium.webdriver.common.by import By
-import requests
 from decouple import config
 from html2text import html2text
 
@@ -48,24 +50,30 @@ def download_transcript(driver, lesson_title, lesson_index, course_title):
     transcript_button_css = 'a[title^="Download the transcript"]'
     if check_exists_by_css_selector(driver, transcript_button_css):
         transcript_elem = driver.find_element(By.CSS_SELECTOR, transcript_button_css)
-        transcript_url = transcript_elem.get_attribute("href")
+        transcript_elem.click()
+        print(f"Transcript download initiated for {lesson_title}.")
 
-        try:
-            response = requests.get(transcript_url)
-            if response.status_code == 200:
-                download_path = config("DOWNLOAD_PATH")
-                file_name = (
-                    f"Vue School - {course_title} - {lesson_index} {lesson_title} - HD.vtt"
-                    .replace("?", "_").replace("/", "_").replace("*", "_")
-                )
-                with open(f"{download_path}/{file_name}", "wb") as f:
-                    f.write(response.content)
-                print(f"Downloaded Transcript for {lesson_title}.")
-                return True
-            else:
-                print(f"Failed to download transcript for {lesson_title}. Status Code: {response.status_code}")
-        except requests.exceptions.RequestException as e:
-            print(f"Error downloading transcript: {e}")
+        # Wait for the download to complete and rename the file
+        download_path = config("DOWNLOAD_PATH")
+        file_name = (
+            f"Vue School - {course_title} - {lesson_index} {lesson_title} - HD.vtt"
+            .replace("?", "_").replace("/", "_").replace("*", "_")
+        )
+        
+        # Assuming the downloaded file is the latest file in the download directory
+        sleep(5)  # Wait for the download to complete
+        files = sorted(
+            [f for f in os.listdir(download_path) if f.endswith(".vtt")],
+            key=lambda x: os.path.getctime(os.path.join(download_path, x)),
+            reverse=True
+        )
+        if files:
+            latest_file = os.path.join(download_path, files[0])
+            os.rename(latest_file, os.path.join(download_path, file_name))
+            print(f"Downloaded Transcript for {lesson_title}.")
+            return True
+        else:
+            print(f"Failed to find the downloaded transcript for {lesson_title}.")
             return False
     return False
 
